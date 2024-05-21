@@ -9,10 +9,7 @@ import com.literalura.literaluraapp.repository.LibroRepository;
 import com.literalura.literaluraapp.service.ConsumoAPI;
 import com.literalura.literaluraapp.service.ConvierteDatos;
 import com.literalura.literaluraapp.service.ConvierteDatosAutor;
-import com.literalura.literaluraapp.utils.BuscarLibro;
-import com.literalura.literaluraapp.utils.ListarAutores;
-import com.literalura.literaluraapp.utils.ListarLibros;
-import com.literalura.literaluraapp.utils.MostrarAutoresVivos;
+import com.literalura.literaluraapp.utils.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +29,12 @@ public class Principal {
     private ListarLibros listarLibros;
     private ListarAutores listarAutores;
     private MostrarAutoresVivos mostrarAutoresVivos;
+    private ListarLibrosPorIdioma listarLibrosPorIdioma;
+    private BuscarAutorPorNombre buscarAutorPorNombre;
+    private Top10LibrosEnLaAPI top10LibrosEnLaAPI;
+    private Top5LibrosEnLaBase top5LibrosEnLaBase;
+    private AutoresEnDerechoPublico autoresEnDerechoPublico;
+    private MostrarUltimoLibroIngresado mostrarUltimoLibroIngresado;
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
         this.libroRepository = libroRepository;
         this.autorRepository = autorRepository;
@@ -39,6 +42,12 @@ public class Principal {
         this.listarLibros = new ListarLibros(libroRepository);
         this.listarAutores = new ListarAutores(autorRepository);
         this.mostrarAutoresVivos = new MostrarAutoresVivos(autorRepository);
+        this.listarLibrosPorIdioma = new ListarLibrosPorIdioma(libroRepository, teclado);
+        this.buscarAutorPorNombre = new BuscarAutorPorNombre(autorRepository, teclado);
+        this.top10LibrosEnLaAPI = new Top10LibrosEnLaAPI(consumoAPI, conversor, conversorAutor);
+        this.top5LibrosEnLaBase = new Top5LibrosEnLaBase(libroRepository);
+        this.autoresEnDerechoPublico = new AutoresEnDerechoPublico(consumoAPI, conversorAutor);
+        this.mostrarUltimoLibroIngresado = new MostrarUltimoLibroIngresado(libroRepository);
     }
 
     public void mostrarMenu() {
@@ -51,9 +60,9 @@ public class Principal {
         var opcion = -1;
         while (opcion != 0) {
             var menu = """
-                    
+                                        
                     Menú:
-                    
+                                        
                     1 - Buscar libro por título.
                     2 - Listar libros registrados.
                     3 - Listar autores registrados.
@@ -79,28 +88,28 @@ public class Principal {
                     listarLibros.mostrarLibrosRegistrados();
                     break;
                 case 3:
-                    listarAutores.mostrarAutoresRegistrados(); // Actualiza la referencia aquí
+                    listarAutores.mostrarAutoresRegistrados();
                     break;
                 case 4:
                     mostrarAutoresVivos.mostrarAutoresVivosEnUnDeterminadoAnio();
                     break;
                 case 5:
-                    listarLibrosPorIdioma();
+                    listarLibrosPorIdioma.listarLibrosPorIdioma();
                     break;
                 case 6:
-                    buscarAutorPorNombre();
+                    buscarAutorPorNombre.buscarAutorPorNombre();
                     break;
                 case 7:
-                    top10LibrosEnLaAPI();
+                    top10LibrosEnLaAPI.top10LibrosEnLaAPI();
                     break;
                 case 8:
-                    top5LibrosEnLaBase();
+                    top5LibrosEnLaBase.top5LibrosEnLaBase();
                     break;
                 case 9:
-                    autoresEnDerechoPublico();
+                    autoresEnDerechoPublico.listarAutoresEnDerechoPublico();
                     break;
                 case 10:
-                    mostrarUltimoLibroIngresado();
+                    mostrarUltimoLibroIngresado.mostrarUltimoLibroIngresado();
                     break;
                 case 0:
                     System.out.println("Gracias por usar LiterAlura. Hasta luego!\n");
@@ -110,154 +119,6 @@ public class Principal {
             }
         }
         System.exit(0);
-    }
-
-    private void mostrarUltimoLibroIngresado() {
-        try {
-            List<Libro> libros = libroRepository.findAll();
-            if (!libros.isEmpty()) {
-                // Ordenamos los libros por ID
-                libros.sort(Comparator.comparing(Libro::getId));
-                // Obtenemos el último libro ingresado
-                Libro ultimoLibro = libros.get(libros.size() - 1);
-                System.out.println(ultimoLibro);
-            } else {
-                System.out.println("No hay libros en el repositorio.");
-            }
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-
-    public void listarLibrosPorIdioma() {
-        libros = libroRepository.findAll();
-        List<String> idiomasUnicos = libros.stream()
-                .map(Libro::getIdioma)
-                .distinct()
-                .collect(Collectors.toList());
-        System.out.println(" ");
-        System.out.println("Ingrese las siglas del idioma que desea buscar: ");
-        idiomasUnicos.forEach(idioma -> {
-
-            switch (idioma) {
-                case "en":
-                    System.out.println("en -> para idioma inglés.");
-                    break;
-                case "es":
-                    System.out.println("es -> para idioma español.");
-                    break;
-                case "pt":
-                    System.out.println("pt -> para idioma portugués.");
-            }
-        });
-
-        String idiomaBuscado = teclado.nextLine();
-        List<Libro> librosBuscados = libros.stream()
-                .filter(l -> l.getIdioma().contains(idiomaBuscado))
-                .collect(Collectors.toList());
-        librosBuscados.forEach(System.out::println);
-
-    }
-
-
-    public void buscarAutorPorNombre() {
-        System.out.println("Ingrese el nombre del autor que desea buscar");
-        var nombreAutor = teclado.nextLine();
-        autorBuscado = autorRepository.findByNombreContainingIgnoreCase(nombreAutor);
-        if (autorBuscado.isPresent()) {
-            System.out.println(autorBuscado.get());
-        } else {
-            System.out.println("Autor no encontrado");
-        }
-    }
-
-    public void top10LibrosEnLaAPI() {
-        try {
-            String json = consumoAPI.obtenerDatos(URL_BASE + "?sort");
-
-            List<DatosLibro> datosLibros = conversor.obtenerDatosArray(json, DatosLibro.class);
-            List<DatosAutor> datosAutor = conversorAutor.obtenerDatosArray(json, DatosAutor.class);
-
-            List<Libro> libros = new ArrayList<>();
-            for (int i = 0; i < datosLibros.size(); i++) {
-                Autor autor = new Autor(
-                        datosAutor.get(i).nombre(),
-                        datosAutor.get(i).fechaDeNacimiento(),
-                        datosAutor.get(i).fechaDeFallecimiento());
-
-                Libro libro = new Libro(
-                        datosLibros.get(i).titulo(),
-                        autor,
-                        datosLibros.get(i).idioma(),
-                        datosLibros.get(i).numeroDeDescargas());
-                libros.add(libro);
-            }
-
-            libros.sort(Comparator.comparingDouble(Libro::getNumeroDeDescargas).reversed());
-
-            List<Libro> top10Libros = libros.subList(0, Math.min(10, libros.size()));
-
-            for (int i = 0; i < top10Libros.size(); i++) {
-                System.out.println((i + 1) + ". " + top10Libros.get(i));
-            }
-
-        } catch (NullPointerException e) {
-            System.out.println("Error occurrido: " + e.getMessage());
-        }
-    }
-
-    public void top5LibrosEnLaBase() {
-        try {
-            List<Libro> libros = libroRepository.findAll();
-            List<Libro> librosOrdenados = libros.stream()
-                    .sorted(Comparator.comparingDouble(Libro::getNumeroDeDescargas).reversed())
-                    .collect(Collectors.toList());
-            List<Libro> top5Libros = librosOrdenados.subList(0, Math.min(5, librosOrdenados.size()));
-            for (int i = 0; i < top5Libros.size(); i++) {
-                System.out.println((i + 1) + ". " + top5Libros.get(i));
-            }
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
-            libros = new ArrayList<>();
-        }
-    }
-
-    public void autoresEnDerechoPublico() {
-        try {
-            String json = consumoAPI.obtenerDatos(URL_BASE + "?sort");
-
-            List<DatosAutor> datosAutor = conversorAutor.obtenerDatosArray(json, DatosAutor.class);
-
-            Map<String, Autor> autoresMap = new HashMap<>();
-
-            for (DatosAutor datoAutor : datosAutor) {
-                String nombre = datoAutor.nombre();
-                Autor autor = autoresMap.get(nombre);
-
-                if (autor == null) {
-                    autor = new Autor(nombre, datoAutor.fechaDeNacimiento(), datoAutor.fechaDeFallecimiento());
-                    autoresMap.put(nombre, autor);
-                }
-
-                List<Libro> librosArray = new ArrayList<>();
-                autor.setLibros(librosArray);
-            }
-
-            List<Autor> autoresOrdenados = autoresMap.values().stream()
-                    .filter(a -> a.getFechaDeFallecimiento() < 1954)
-                    .collect(Collectors.toList());
-
-            List<Autor> diezAutores = autoresOrdenados.subList(0, Math.min(10, autoresOrdenados.size()));
-
-            for (int i = 0; i < diezAutores.size(); i++) {
-                System.out.println((i + 1) + ". " + diezAutores.get(i).getNombre() + "/n" +
-                        ", año de fallecimiento: " + diezAutores.get(i).getFechaDeFallecimiento());
-            }
-
-        } catch (NullPointerException e) {
-            System.out.println("Error occurrido: " + e.getMessage());
-        }
     }
 
 }

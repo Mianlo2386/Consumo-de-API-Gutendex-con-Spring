@@ -11,6 +11,9 @@ import com.literalura.literaluraapp.repository.LibroRepository;
 import com.literalura.literaluraapp.service.ConsumoAPI;
 import com.literalura.literaluraapp.service.ConvierteDatos;
 import com.literalura.literaluraapp.service.ConvierteDatosAutor;
+import com.literalura.literaluraapp.utils.BuscarLibro;
+import com.literalura.literaluraapp.utils.ListarLibros;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,8 +29,19 @@ public class Principal {
     private List<Libro> libros;
     private List<Autor> autores;
     private Optional<Autor> autorBuscado;
+    private BuscarLibro buscadorLibro;
+    private ListarLibros listarLibros;
+    public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
+        this.libroRepository = libroRepository;
+        this.autorRepository = autorRepository;
+        this.buscadorLibro = new BuscarLibro(libroRepository, autorRepository);
+        this.listarLibros = new ListarLibros(libroRepository);
+    }
 
     public void mostrarMenu() {
+        BuscarLibro buscadorLibro = new BuscarLibro(libroRepository, autorRepository);
+
+
         System.out.println("************************************");
         System.out.println("*      Bienvenido al LiterAlura    *");
         System.out.println("************************************");
@@ -57,10 +71,11 @@ public class Principal {
             teclado.nextLine();
             switch (opcion) {
                 case 1:
-                    buscarLibroPorTitulo();
+                    buscadorLibro.buscarLibroPorTitulo();
                     break;
+
                 case 2:
-                    mostrarLibrosRegistrados();
+                    listarLibros.mostrarLibrosRegistrados();
                     break;
                 case 3:
                     mostrarAutoresRegistrados();
@@ -96,117 +111,11 @@ public class Principal {
         System.exit(0);
     }
 
-    public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
-        this.libroRepository = libroRepository;
-        this.autorRepository = autorRepository;
-    }
-
-    private DatosLibro getDatosLibro(String nombreLibro) {
-        var json = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreLibro.replace(" ", "+"));
-        DatosLibro datos = conversor.obtenerDatos(json, DatosLibro.class);
-        return datos;
-    }
-
-    private DatosAutor getDatosAutor(String nombreLibro) {
-        var json = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreLibro.replace(" ", "+"));
-        DatosAutor datos = conversorAutor.obtenerDatos(json, DatosAutor.class);
-        return datos;
-    }
-
-    private String ingresoDeOpcion() {
-        System.out.println("Escribe el nombre del libro que deseas buscar: ");
-        var nombreLibro = teclado.nextLine();
-        return nombreLibro;
-    }
-
-    private void mostrarLibrosRegistrados() {
-        try {
-            List<Libro> libros = libroRepository.findAll();
-            libros.stream()
-                    .sorted(Comparator.comparing(Libro::getNumeroDeDescargas))
-                    .forEach(System.out::println);
-        } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
-            libros = new ArrayList<>();
-        }
-    }
-
-    public void buscarLibroPorTitulo() {
-
-        String libroBuscado = ingresoDeOpcion();
-
-        libros = libros != null ? libros : new ArrayList<>();
-
-        Optional<Libro> book = libros.stream()
-                .filter(l -> l.getTitulo().toLowerCase()
-                        .contains(libroBuscado.toLowerCase()))
-                .findFirst();
-
-        if (book.isPresent()) {
-            var libroEncontrado = book.get();
-            System.out.println(libroEncontrado);
-            System.out.println("El libro ya fue cargado anteriormente.");
-        } else {
-            try {
-                DatosLibro datosLibro = getDatosLibro(libroBuscado);
-                //System.out.println(datosLibro);
-
-                if (datosLibro != null) {
-                    DatosAutor datosAutor = getDatosAutor(libroBuscado);
-                    if (datosAutor != null) {
-                        List<Autor> autores = autorRepository.findAll();
-                        autores = autores != null ? autores : new ArrayList<>();
-
-                        Optional<Autor> writer = autores.stream()
-                                .filter(a -> datosAutor.nombre() != null &&
-                                        a.getNombre().toLowerCase().contains(datosAutor.nombre().toLowerCase()))
-                                .findFirst();
-
-                        Autor autor;
-                        if (writer.isPresent()) {
-                            autor = writer.get();
-                        } else {
-                            autor = new Autor(
-                                    datosAutor.nombre(),
-                                    datosAutor.fechaDeNacimiento(),
-                                    datosAutor.fechaDeFallecimiento()
-                            );
-                            autorRepository.save(autor);
-                        }
-
-                        Libro libro = new Libro(
-                                datosLibro.titulo(),
-                                autor,
-                                datosLibro.idioma() != null ? datosLibro.idioma() : Collections.emptyList(),
-                                datosLibro.numeroDeDescargas()
-                        );
-
-                        libros.add(libro);
-                        autor.setLibros(libros);
-
-
-                        libroRepository.save(libro);
-
-                        System.out.println(libro);
-                        System.out.println("Libro guardado exitosamente!");
-                        //mostrarUltimoLibroIngresado();
-                    } else {
-                        System.out.println("No se encontró el autor para el libro.");
-                    }
-
-                } else {
-                    System.out.println("No se encontró el libro lamentablemente.");
-                }
-            } catch (Exception e) {
-                System.out.println("Se produjo la siguiente excepción: " + e.getMessage());
-            }
-        }
-    }
     private void mostrarUltimoLibroIngresado() {
         try {
             List<Libro> libros = libroRepository.findAll();
             if (!libros.isEmpty()) {
-                // Ordenamos los libros por ID (suponiendo que el ID es autoincremental y refleja el orden de ingreso)
+                // Ordenamos los libros por ID
                 libros.sort(Comparator.comparing(Libro::getId));
                 // Obtenemos el último libro ingresado
                 Libro ultimoLibro = libros.get(libros.size() - 1);

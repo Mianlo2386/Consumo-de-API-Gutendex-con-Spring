@@ -1,7 +1,5 @@
 package com.literalura.literaluraapp.principal;
 
-
-
 import com.literalura.literaluraapp.model.Autor;
 import com.literalura.literaluraapp.model.DatosAutor;
 import com.literalura.literaluraapp.model.DatosLibro;
@@ -12,8 +10,9 @@ import com.literalura.literaluraapp.service.ConsumoAPI;
 import com.literalura.literaluraapp.service.ConvierteDatos;
 import com.literalura.literaluraapp.service.ConvierteDatosAutor;
 import com.literalura.literaluraapp.utils.BuscarLibro;
+import com.literalura.literaluraapp.utils.ListarAutores;
 import com.literalura.literaluraapp.utils.ListarLibros;
-
+import com.literalura.literaluraapp.utils.MostrarAutoresVivos;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,20 +30,23 @@ public class Principal {
     private Optional<Autor> autorBuscado;
     private BuscarLibro buscadorLibro;
     private ListarLibros listarLibros;
+    private ListarAutores listarAutores;
+    private MostrarAutoresVivos mostrarAutoresVivos;
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
         this.libroRepository = libroRepository;
         this.autorRepository = autorRepository;
         this.buscadorLibro = new BuscarLibro(libroRepository, autorRepository);
         this.listarLibros = new ListarLibros(libroRepository);
+        this.listarAutores = new ListarAutores(autorRepository);
+        this.mostrarAutoresVivos = new MostrarAutoresVivos(autorRepository);
     }
 
     public void mostrarMenu() {
         BuscarLibro buscadorLibro = new BuscarLibro(libroRepository, autorRepository);
 
-
-        System.out.println("************************************");
-        System.out.println("*      Bienvenido al LiterAlura    *");
-        System.out.println("************************************");
+        System.out.println("**************************************");
+        System.out.println("*      Bienvenido al LiterAlura      *");
+        System.out.println("**************************************");
 
         var opcion = -1;
         while (opcion != 0) {
@@ -73,15 +75,14 @@ public class Principal {
                 case 1:
                     buscadorLibro.buscarLibroPorTitulo();
                     break;
-
                 case 2:
                     listarLibros.mostrarLibrosRegistrados();
                     break;
                 case 3:
-                    mostrarAutoresRegistrados();
+                    listarAutores.mostrarAutoresRegistrados(); // Actualiza la referencia aquí
                     break;
                 case 4:
-                    mostrarAutoresVivosEnUnDeterminadoAnio();
+                    mostrarAutoresVivos.mostrarAutoresVivosEnUnDeterminadoAnio();
                     break;
                 case 5:
                     listarLibrosPorIdioma();
@@ -128,22 +129,6 @@ public class Principal {
         }
     }
 
-    public void mostrarAutoresRegistrados() {
-        autores = autorRepository.findAll();
-        autores.stream()
-                .forEach(System.out::println);
-    }
-
-    public void mostrarAutoresVivosEnUnDeterminadoAnio() {
-        System.out.println("Ingrese un año: ");
-        int anio = teclado.nextInt();
-        autores = autorRepository.findAll();
-        List<String> autoresNombre = autores.stream()
-                .filter(a -> (a.getFechaDeFallecimiento() >= anio) && (a.getFechaDeNacimiento() <= anio))
-                .map(a -> a.getNombre())
-                .collect(Collectors.toList());
-        autoresNombre.forEach(System.out::println);
-    }
 
     public void listarLibrosPorIdioma() {
         libros = libroRepository.findAll();

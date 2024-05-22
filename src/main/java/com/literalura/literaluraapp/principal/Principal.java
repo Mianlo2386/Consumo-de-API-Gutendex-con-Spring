@@ -9,6 +9,8 @@ import com.literalura.literaluraapp.service.ConsumoAPI;
 import com.literalura.literaluraapp.service.ConvierteDatos;
 import com.literalura.literaluraapp.service.ConvierteDatosAutor;
 import com.literalura.literaluraapp.utils.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.*;
 
@@ -18,6 +20,7 @@ public class Principal {
     private ConvierteDatos conversor = new ConvierteDatos();
     private ConvierteDatosAutor conversorAutor = new ConvierteDatosAutor();
     private Scanner teclado = new Scanner(System.in);
+    private final String URL_BASE = "https://gutendex.com/books/";
     private LibroRepository libroRepository;
     private AutorRepository autorRepository;
     private BuscarLibro buscadorLibro;
@@ -30,6 +33,7 @@ public class Principal {
     private Top5LibrosEnLaBase top5LibrosEnLaBase;
     private AutoresEnDerechoPublico autoresEnDerechoPublico;
     private MostrarUltimoLibroIngresado mostrarUltimoLibroIngresado;
+    private BuscarCopyright buscarCopyright;
 
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
         this.libroRepository = libroRepository;
@@ -44,39 +48,38 @@ public class Principal {
         this.top5LibrosEnLaBase = new Top5LibrosEnLaBase(libroRepository);
         this.autoresEnDerechoPublico = new AutoresEnDerechoPublico(consumoAPI, conversorAutor);
         this.mostrarUltimoLibroIngresado = new MostrarUltimoLibroIngresado(libroRepository);
+        this.buscarCopyright = new BuscarCopyright(consumoAPI);
     }
 
     public void mostrarMenu() {
-        BuscarLibro buscadorLibro = new BuscarLibro(libroRepository, autorRepository);
-
         System.out.println("\n");
         System.out.println("**************************************");
         System.out.println("*      Bienvenido al LiterAlura      *");
         System.out.println("**************************************");
 
-        var opcion = -1;
-        while (opcion != 0) {
-            var menu = """
-                                        
-                    Menú:
-                                        
-                    1 - Buscar libro por título.
-                    2 - Listar libros registrados.
-                    3 - Listar autores registrados.
-                    4 - Listar autores vivos en un determinado año.
-                    5 - Listar libros por idioma.
-                    6 - Buscar autores por nombre.
-                    7 - Top 10 libros en la API.
-                    8 - Top 5 libros en la base de datos.
-                    9 - Autores en derecho público.
-                                                   
-                    0 - Salir
-                    *****************************************************
-                    Elija una opción:
-                    """;
-            System.out.println(menu);
+        int opcion;
+        do {
+            System.out.println("\n");
+            System.out.println("Menú: \n");
+            System.out.println("1. Buscar libro por título.");
+            System.out.println("2. Listar libros registrados.");
+            System.out.println("3. Listar autores registrados.");
+            System.out.println("4. Listar autores vivos en un determinado año.");
+            System.out.println("5. Listar libros por idioma.");
+            System.out.println("6. Buscar autores por nombre.");
+            System.out.println("7. Top 10 libros en la API.");
+            System.out.println("8. Top 5 libros en la base de datos.");
+            System.out.println("9. Buscar Copyright de libros.");
+            System.out.println("10. Mostrar último libro registrado.");
+            System.out.println("11. Autores en derecho público.\n");
+            System.out.println("0. Salir.\n");
+            System.out.print("Ingrese el número de la opción: ");
+
             opcion = teclado.nextInt();
             teclado.nextLine();
+
+            System.out.println("\n");
+
             switch (opcion) {
                 case 1:
                     buscadorLibro.buscarLibroPorTitulo();
@@ -103,19 +106,23 @@ public class Principal {
                     top5LibrosEnLaBase.top5LibrosEnLaBase();
                     break;
                 case 9:
-                    autoresEnDerechoPublico.listarAutoresEnDerechoPublico();
+                    buscarCopyright.buscarCopyrightDeLibros();;
                     break;
                 case 10:
                     mostrarUltimoLibroIngresado.mostrarUltimoLibroIngresado();
                     break;
+                case 11:
+                    autoresEnDerechoPublico.listarAutoresEnDerechoPublico();
+                    break;
                 case 0:
                     System.out.println("Gracias por usar LiterAlura. Hasta luego!\n");
+                    System.exit(0);
                     break;
                 default:
                     System.out.println("Por favor ingrese una opción válida.");
             }
-        }
-        System.exit(0);
+        } while (opcion != 0);
     }
+
 }
 

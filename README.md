@@ -16,6 +16,7 @@ La aplicación cuenta con las siguientes funcionalidades:
     Buscar autores por nombre: Permite buscar un autor en la base de datos local por su nombre.
     Top 10 libros en la API: Muestra los 10 libros más descargados según la API de Gutendex.
     Top 5 libros en la base de datos: Muestra los 5 libros más descargados en la base de datos local.
+    Busqueda de Copyright de libros.
     Autores en derecho público: Lista autores cuyos libros están en el dominio público (fallecidos antes de 1954).
 
 <h2>Uso de tecnologías</h2>

@@ -75,51 +75,58 @@ public class Principal {
             System.out.println("0. Salir.\n");
             System.out.print("Ingrese el número de la opción: ");
 
-            opcion = teclado.nextInt();
-            teclado.nextLine();
+            try {
+                opcion = teclado.nextInt();
+                teclado.nextLine();
 
-            System.out.println("\n");
+                System.out.println("\n");
 
-            switch (opcion) {
-                case 1:
-                    buscadorLibro.buscarLibroPorTitulo();
-                    break;
-                case 2:
-                    listarLibros.mostrarLibrosRegistrados();
-                    break;
-                case 3:
-                    listarAutores.mostrarAutoresRegistrados();
-                    break;
-                case 4:
-                    mostrarAutoresVivos.mostrarAutoresVivosEnUnDeterminadoAnio();
-                    break;
-                case 5:
-                    listarLibrosPorIdioma.listarLibrosPorIdioma();
-                    break;
-                case 6:
-                    buscarAutorPorNombre.buscarAutorPorNombre();
-                    break;
-                case 7:
-                    top10LibrosEnLaAPI.top10LibrosEnLaAPI();
-                    break;
-                case 8:
-                    top5LibrosEnLaBase.top5LibrosEnLaBase();
-                    break;
-                case 9:
-                    buscarCopyright.buscarCopyrightDeLibros();;
-                    break;
-                case 10:
-                    mostrarUltimoLibroIngresado.mostrarUltimoLibroIngresado();
-                    break;
-                case 11:
-                    autoresEnDerechoPublico.listarAutoresEnDerechoPublico();
-                    break;
-                case 0:
-                    System.out.println("Gracias por usar LiterAlura. Hasta luego!\n");
-                    System.exit(0);
-                    break;
-                default:
-                    System.out.println("Por favor ingrese una opción válida.");
+                switch (opcion) {
+                    case 1:
+                        buscadorLibro.buscarLibroPorTitulo();
+                        break;
+                    case 2:
+                        listarLibros.mostrarLibrosRegistrados();
+                        break;
+                    case 3:
+                        listarAutores.mostrarAutoresRegistrados();
+                        break;
+                    case 4:
+                        mostrarAutoresVivos.mostrarAutoresVivosEnUnDeterminadoAnio();
+                        break;
+                    case 5:
+                        listarLibrosPorIdioma.listarLibrosPorIdioma();
+                        break;
+                    case 6:
+                        buscarAutorPorNombre.buscarAutorPorNombre();
+                        break;
+                    case 7:
+                        top10LibrosEnLaAPI.top10LibrosEnLaAPI();
+                        break;
+                    case 8:
+                        top5LibrosEnLaBase.top5LibrosEnLaBase();
+                        break;
+                    case 9:
+                        buscarCopyright.buscarCopyrightDeLibros();
+                        ;
+                        break;
+                    case 10:
+                        mostrarUltimoLibroIngresado.mostrarUltimoLibroIngresado();
+                        break;
+                    case 11:
+                        autoresEnDerechoPublico.listarAutoresEnDerechoPublico();
+                        break;
+                    case 0:
+                        System.out.println("Gracias por usar LiterAlura. Hasta luego!\n");
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Por favor ingrese una opción válida.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Por favor ingrese un número entero válido.");
+                teclado.next();
+                opcion = -1;
             }
         } while (opcion != 0);
     }

@@ -37,7 +37,7 @@ public class ListarLibrosPorIdioma {
                     System.out.println("pt -> para idioma portugués.");
                     break;
                 default:
-                    System.out.println(idioma + " -> idioma desconocido.");
+                    System.out.println(idioma + " -> para este idioma desconocido.");
             }
         });
 

@@ -1,16 +1,13 @@
 package com.literalura.literaluraapp.principal;
 
-import com.literalura.literaluraapp.model.Autor;
 
-import com.literalura.literaluraapp.model.Libro;
 import com.literalura.literaluraapp.repository.AutorRepository;
 import com.literalura.literaluraapp.repository.LibroRepository;
 import com.literalura.literaluraapp.service.ConsumoAPI;
 import com.literalura.literaluraapp.service.ConvierteDatos;
 import com.literalura.literaluraapp.service.ConvierteDatosAutor;
 import com.literalura.literaluraapp.utils.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
 
 import java.util.*;
 
@@ -20,7 +17,6 @@ public class Principal {
     private ConvierteDatos conversor = new ConvierteDatos();
     private ConvierteDatosAutor conversorAutor = new ConvierteDatosAutor();
     private Scanner teclado = new Scanner(System.in);
-    private final String URL_BASE = "https://gutendex.com/books/";
     private LibroRepository libroRepository;
     private AutorRepository autorRepository;
     private BuscarLibro buscadorLibro;
@@ -41,7 +37,7 @@ public class Principal {
         this.buscadorLibro = new BuscarLibro(libroRepository, autorRepository);
         this.listarLibros = new ListarLibros(libroRepository);
         this.listarAutores = new ListarAutores(autorRepository);
-        this.mostrarAutoresVivos = new MostrarAutoresVivos(autorRepository);
+        this.mostrarAutoresVivos = new MostrarAutoresVivos(consumoAPI);
         this.listarLibrosPorIdioma = new ListarLibrosPorIdioma(libroRepository, teclado);
         this.buscarAutorPorNombre = new BuscarAutorPorNombre(autorRepository, teclado);
         this.top10LibrosEnLaAPI = new Top10LibrosEnLaAPI(consumoAPI, conversor, conversorAutor);

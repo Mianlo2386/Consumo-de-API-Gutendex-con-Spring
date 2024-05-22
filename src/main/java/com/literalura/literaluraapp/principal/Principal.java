@@ -1,8 +1,7 @@
 package com.literalura.literaluraapp.principal;
 
 import com.literalura.literaluraapp.model.Autor;
-import com.literalura.literaluraapp.model.DatosAutor;
-import com.literalura.literaluraapp.model.DatosLibro;
+
 import com.literalura.literaluraapp.model.Libro;
 import com.literalura.literaluraapp.repository.AutorRepository;
 import com.literalura.literaluraapp.repository.LibroRepository;
@@ -12,19 +11,15 @@ import com.literalura.literaluraapp.service.ConvierteDatosAutor;
 import com.literalura.literaluraapp.utils.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 public class Principal {
     private ConsumoAPI consumoAPI = new ConsumoAPI();
     private ConvierteDatos conversor = new ConvierteDatos();
     private ConvierteDatosAutor conversorAutor = new ConvierteDatosAutor();
-    private final String URL_BASE = "https://gutendex.com/books/";
     private Scanner teclado = new Scanner(System.in);
     private LibroRepository libroRepository;
     private AutorRepository autorRepository;
-    private List<Libro> libros;
-    private List<Autor> autores;
-    private Optional<Autor> autorBuscado;
     private BuscarLibro buscadorLibro;
     private ListarLibros listarLibros;
     private ListarAutores listarAutores;
@@ -35,6 +30,7 @@ public class Principal {
     private Top5LibrosEnLaBase top5LibrosEnLaBase;
     private AutoresEnDerechoPublico autoresEnDerechoPublico;
     private MostrarUltimoLibroIngresado mostrarUltimoLibroIngresado;
+
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
         this.libroRepository = libroRepository;
         this.autorRepository = autorRepository;
@@ -53,6 +49,7 @@ public class Principal {
     public void mostrarMenu() {
         BuscarLibro buscadorLibro = new BuscarLibro(libroRepository, autorRepository);
 
+        System.out.println("\n");
         System.out.println("**************************************");
         System.out.println("*      Bienvenido al LiterAlura      *");
         System.out.println("**************************************");
@@ -120,6 +117,5 @@ public class Principal {
         }
         System.exit(0);
     }
-
 }
 
